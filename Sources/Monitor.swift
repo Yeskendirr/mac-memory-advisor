@@ -222,6 +222,13 @@ final class Monitor: ObservableObject {
     }
 
     private func signal(_ p: ProcRow, force: Bool) {
+        // A process supervised by launchd (KeepAlive, e.g. `brew services`) is restarted right after it dies,
+        // so a plain signal never frees its memory. Unload the job itself instead.
+        if let label = Monitor.launchdJob(owning: p.pid) {
+            let ok = Monitor.bootout(label)
+            AppLog.write("  launchd job \"\(label)\" owns pid \(p.pid): bootout \(ok ? "ok" : "FAILED")")
+            if ok { return }
+        }
         if force { kill(p.pid, SIGKILL); return }
         if p.command.contains("qemu-system") {                 // Android emulator - stop cleanly via adb
             DispatchQueue.global().async { if !Monitor.emulatorKill() { kill(p.pid, SIGTERM) } }
@@ -229,6 +236,43 @@ final class Monitor: ObservableObject {
         }
         if p.name == "postgres", p.command.contains(" -D ") { kill(p.pid, SIGINT); return }   // fast shutdown
         kill(p.pid, SIGTERM)
+    }
+
+    /// Label of the user-domain launchd job whose process tree contains `pid` (nil if none).
+    /// Walks up the parent chain because the job's own pid is often a wrapper (mysqld_safe -> mysqld).
+    nonisolated static func launchdJob(owning pid: Int32) -> String? {
+        func sh(_ exe: String, _ args: [String]) -> String {
+            let p = Process(); p.executableURL = URL(fileURLWithPath: exe); p.arguments = args
+            let pipe = Pipe(); p.standardOutput = pipe; p.standardError = FileHandle.nullDevice
+            guard (try? p.run()) != nil else { return "" }
+            let d = pipe.fileHandleForReading.readDataToEndOfFile(); p.waitUntilExit()
+            return String(decoding: d, as: UTF8.self)
+        }
+        var jobs: [Int32: String] = [:]                       // `launchctl list`: PID  Status  Label
+        for line in sh("/bin/launchctl", ["list"]).split(separator: "\n").dropFirst() {
+            let f = line.split(separator: "\t")
+            guard f.count == 3, let jp = Int32(f[0]) else { continue }
+            let label = String(f[2])
+            // skip per-launch wrappers of GUI apps and anonymous jobs: those are not restart-on-exit services
+            if label.hasPrefix("application.") || label.hasPrefix("0x") || label.hasPrefix("com.apple.") { continue }
+            jobs[jp] = label
+        }
+        var cur = pid
+        for _ in 0..<8 where cur > 1 {
+            if let l = jobs[cur] { return l }
+            guard let pp = Int32(sh("/bin/ps", ["-o", "ppid=", "-p", String(cur)]).trimmingCharacters(in: .whitespacesAndNewlines)) else { return nil }
+            cur = pp
+        }
+        return nil
+    }
+
+    nonisolated static func bootout(_ label: String) -> Bool {
+        let p = Process(); p.executableURL = URL(fileURLWithPath: "/bin/launchctl")
+        p.arguments = ["bootout", "gui/\(getuid())/\(label)"]
+        p.standardOutput = FileHandle.nullDevice; p.standardError = FileHandle.nullDevice
+        guard (try? p.run()) != nil else { return false }
+        p.waitUntilExit()
+        return p.terminationStatus == 0
     }
 
     nonisolated static func emulatorKill() -> Bool {
