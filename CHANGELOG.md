@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Fix: processes supervised by launchd (`KeepAlive`, e.g. MySQL from `brew services`) were respawned right after being stopped, so their memory was never freed and the app reported "did not quit". The owning launchd job is now unloaded with `launchctl bootout` (until next login) instead of signalling the process.
+
 ## 1.0.0
 
 First public release.
