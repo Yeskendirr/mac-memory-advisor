@@ -124,12 +124,13 @@ Resources/           Info.plist, icon generator, en/ru localizations
 
 Issues and pull requests are welcome — especially new verdict rules, translations and bug reports with the details popover contents. Please keep the app dependency-free.
 
-## Author
+## Authors
 
-Created by **Eskendir Baiseytov** ([@Yeskendirr](https://github.com/Yeskendirr)).
+- **Eskendir Baiseytov** ([@Yeskendirr](https://github.com/Yeskendirr))
+- **Erdana Tursunov** ([@danshikdev](https://github.com/danshikdev))
 
 ## License
 
-[MIT](LICENSE) © 2026 Eskendir Baiseytov
+[MIT](LICENSE) © 2026 Eskendir Baiseytov & Erdana Tursunov
 
 <!-- Keywords: macOS memory monitor, RAM monitor Mac, Activity Monitor alternative, which process uses most memory Mac, is it safe to quit process Mac, eject external drive disk in use, disk not ejected properly, what is using my disk macOS, lsof, Spotlight mds blocks eject, swap memory pressure, SwiftUI app, process manager -->
