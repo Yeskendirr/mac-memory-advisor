@@ -175,3 +175,4 @@
 "By uptime" = "By uptime";
 "By name" = "By name";
 "All" = "All";
+"Kills the selected processes immediately. Unsaved data will be lost" = "Kills the selected processes immediately. Unsaved data will be lost";

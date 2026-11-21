@@ -166,3 +166,4 @@
 "By uptime" = "По возрасту";
 "By name" = "По имени";
 "All" = "Все";
+"Kills the selected processes immediately. Unsaved data will be lost" = "Сразу убивает выбранные процессы. Несохранённые данные будут потеряны";

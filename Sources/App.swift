@@ -127,8 +127,8 @@ struct ContentView: View {
         } message: {
             Text("Apps are quit like Cmd+Q and may ask about unsaved data. Other processes receive a gentle termination signal.")
         }
-        .confirmationDialog("Force quit (\(m.stuckSelected.count))?", isPresented: $confirmForce, titleVisibility: .visible) {
-            Button("Force quit", role: .destructive) { m.stop(Set(m.stuckSelected.map(\.id)), force: true) }
+        .confirmationDialog("Force quit (\(m.selectedGroups.count))?", isPresented: $confirmForce, titleVisibility: .visible) {
+            Button("Force quit", role: .destructive) { m.forceSelected() }
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("Unsaved data in these processes will be lost.")
@@ -247,9 +247,12 @@ struct ContentView: View {
                                           : String(localized: "Selected: \(m.selectedGroups.count) · will free ~\(fmtMem(selMem)) of memory"))
                 .font(.caption).foregroundStyle(.secondary).lineLimit(1)
             Spacer()
-            if !m.stuckSelected.isEmpty {
-                Button("Force quit (\(m.stuckSelected.count))") { confirmForce = true }.tint(.red)
-            }
+            // always available: some apps (CrossOver/Wine, hung processes) never react to a gentle stop,
+            // and a button that shows up only 20 s after a failed stop is easy to miss
+            Button("Force quit (\(m.selectedGroups.count))") { confirmForce = true }
+                .tint(m.stuckSelected.isEmpty ? nil : .red)
+                .disabled(m.selectedGroups.isEmpty)
+                .help("Kills the selected processes immediately. Unsaved data will be lost")
             Button("Stop selected") { confirmStop = true }
                 .buttonStyle(.borderedProminent).tint(.orange)
                 .disabled(m.selectedGroups.isEmpty)
