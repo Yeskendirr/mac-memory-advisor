@@ -220,6 +220,7 @@ final class Monitor: ObservableObject {
                         killAll(g.procs.filter { covered.contains($0.pid) || $0.path.hasPrefix(app + "/") })
                     } else {
                         for p in g.procs where !covered.contains(p.pid) && p.path.hasPrefix(app + "/") { kill(p.pid, SIGTERM) }
+                        scheduleWineReap(app: app, procs: g.procs)
                     }
                     continue
                 }
@@ -228,6 +229,40 @@ final class Monitor: ObservableObject {
             for p in g.procs { signal(p, force: force) }
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { self.refresh() }
+    }
+
+    /// Wine (CrossOver) processes of a bottle cannot run without their `wineserver`, yet some of them
+    /// (winedevice.exe, steam.exe) ignore SIGTERM and linger as orphans, holding files on the disk.
+    /// After a graceful stop: once no wineserver of this app is left, the remaining Wine processes have
+    /// nothing to save, so they are killed.
+    private func scheduleWineReap(app: String, procs: [ProcRow]) {
+        let wine = procs.filter { $0.path.hasPrefix(app + "/") && ($0.path.contains("/lib/wine/") || $0.name == "wineserver") }
+        guard !wine.isEmpty else { return }
+        for delay in [6.0, 15.0] {
+            DispatchQueue.global().asyncAfter(deadline: .now() + delay) {
+                let alive = Monitor.livePaths()
+                if alive.contains(where: { $0.value.hasPrefix(app + "/") && ($0.value as NSString).lastPathComponent == "wineserver" }) { return }
+                let orphans = wine.filter { alive[$0.pid] == $0.path }
+                guard !orphans.isEmpty else { return }
+                for p in orphans { kill(p.pid, SIGKILL) }
+                AppLog.write("  wineserver is gone, killed orphaned Wine processes: pid=" + orphans.map { String($0.pid) }.joined(separator: ","))
+            }
+        }
+    }
+
+    /// pid -> executable path of every process of this user (paths canonicalized like Scanner's).
+    nonisolated static func livePaths() -> [Int32: String] {
+        let n = proc_listallpids(nil, 0)
+        guard n > 0 else { return [:] }
+        var pids = [Int32](repeating: 0, count: Int(n) + 64)
+        let got = proc_listallpids(&pids, Int32(pids.count * MemoryLayout<Int32>.size))
+        var out: [Int32: String] = [:]
+        var buf = [CChar](repeating: 0, count: 4096)
+        for pid in pids.prefix(Int(max(got, 0))) where pid > 0 {
+            let len = proc_pidpath(pid, &buf, UInt32(buf.count))
+            if len > 0 { out[pid] = Scanner.canon(String(cString: buf)) }
+        }
+        return out
     }
 
     /// SIGKILL a set of processes. Windows processes of CrossOver (Wine) ignore SIGTERM and can even outlive
