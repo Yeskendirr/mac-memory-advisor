@@ -214,8 +214,13 @@ final class Monitor: ObservableObject {
                     let covered = Set(running.map { $0.processIdentifier })
                     // only processes INSIDE the .app bundle; the Docker VM (a system process) is never signalled directly -
                     // it must stop by itself when Docker quits normally
-                    let helpers = g.procs.filter { !covered.contains($0.pid) && $0.path.hasPrefix(app + "/") }
-                    if force { killAll(helpers) } else { for p in helpers { kill(p.pid, SIGTERM) } }
+                    if force {
+                        // forceTerminate() is not enough for everything: a Wine process (steam.exe in CrossOver)
+                        // registers as an app yet survives it, so SIGKILL the app processes too
+                        killAll(g.procs.filter { covered.contains($0.pid) || $0.path.hasPrefix(app + "/") })
+                    } else {
+                        for p in g.procs where !covered.contains(p.pid) && p.path.hasPrefix(app + "/") { kill(p.pid, SIGTERM) }
+                    }
                     continue
                 }
             }

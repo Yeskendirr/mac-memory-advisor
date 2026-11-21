@@ -3,7 +3,7 @@
 ## Unreleased
 
 - "Force quit" is now always next to "Stop selected" (with a confirmation). Before, it appeared only 20 s after a failed stop and only while the row stayed selected, so it was easy to miss, and it was lost when the app was reopened.
-- Fix: CrossOver (Wine) could not be stopped, even with "Force quit". Force quit killed only the macOS app and skipped the helper processes inside its bundle, and Wine ignores SIGTERM. Windows processes can even outlive `wineserver`. Force quit now SIGKILLs every remaining process of the app, `wineserver` first.
+- Fix: CrossOver (Wine) could not be stopped, even with "Force quit". Force quit killed only the macOS app and skipped the helper processes inside its bundle, and Wine ignores SIGTERM. Windows processes can even outlive `wineserver`. Force quit now SIGKILLs every remaining process of the app, `wineserver` first, including processes registered as apps (`forceTerminate()` alone did not stop Steam inside CrossOver).
 - Fix: paths under `/private/var` and `/var` are treated as the same, so apps run from Downloads (App Translocation) are matched with their running application.
 
 - Fix: processes supervised by launchd (`KeepAlive`, e.g. MySQL from `brew services`) were respawned right after being stopped, so their memory was never freed and the app reported "did not quit". The owning launchd job is now unloaded with `launchctl bootout` (until next login) instead of signalling the process.
