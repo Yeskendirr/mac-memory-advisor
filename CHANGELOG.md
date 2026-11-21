@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Fix: CrossOver (Wine) could not be stopped, even with "Force quit". Force quit killed only the macOS app and skipped the helper processes inside its bundle, and Wine ignores SIGTERM. Force quit now SIGKILLs every remaining process of the app, `wineserver` first, so all Windows processes of the bottle exit with it.
+- Fix: paths under `/private/var` and `/var` are treated as the same, so apps run from Downloads (App Translocation) are matched with their running application.
+
 - Fix: processes supervised by launchd (`KeepAlive`, e.g. MySQL from `brew services`) were respawned right after being stopped, so their memory was never freed and the app reported "did not quit". The owning launchd job is now unloaded with `launchctl bootout` (until next login) instead of signalling the process.
 
 ## 1.0.0

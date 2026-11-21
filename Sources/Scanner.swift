@@ -103,7 +103,12 @@ final class Scanner: @unchecked Sendable {   // only ever called from one serial
     func procPath(_ pid: Int32) -> String {
         var buf = [CChar](repeating: 0, count: 4096)
         let n = proc_pidpath(pid, &buf, UInt32(buf.count))
-        return n > 0 ? String(cString: buf) : ""
+        return n > 0 ? Scanner.canon(String(cString: buf)) : ""
+    }
+
+    /// One spelling for paths behind the /var and /tmp symlinks, so the same .app is always one group.
+    static func canon(_ p: String) -> String {
+        p.hasPrefix("/private/var/") || p.hasPrefix("/private/tmp/") ? String(p.dropFirst("/private".count)) : p
     }
 
     func usage(_ pid: Int32) -> (mem: UInt64, cpuNs: UInt64)? {

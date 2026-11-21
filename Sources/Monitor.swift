@@ -201,24 +201,38 @@ final class Monitor: ObservableObject {
             if let app = g.appPath {
                 // the app itself + nested helper apps (e.g. RobloxMenuBar.app inside Roblox.app).
                 // Quit nested ones first, otherwise they relaunch the main app.
+                // bundleURL and proc_pidpath may disagree on /var vs /private/var (translocated apps run from Downloads)
                 let running = NSWorkspace.shared.runningApplications.filter {
-                    guard let path = $0.bundleURL?.path else { return false }
+                    guard let url = $0.bundleURL else { return false }
+                    let path = Scanner.canon(url.path)
                     return path == app || path.hasPrefix(app + "/")
                 }.sorted { ($0.bundleURL?.path.count ?? 0) > ($1.bundleURL?.path.count ?? 0) }
                 if !running.isEmpty {
                     AppLog.write("  quitting as application: " + running.map { ($0.bundleURL?.lastPathComponent ?? "?") + "[\($0.processIdentifier)]" }.joined(separator: ", "))
                     for r in running { if force { _ = r.forceTerminate() } else { _ = r.terminate() } }
-                    // windowless helpers without Quit support (crash handlers etc.) - send a plain SIGTERM
+                    // windowless helpers without Quit support (crash handlers, Wine processes of CrossOver...)
                     let covered = Set(running.map { $0.processIdentifier })
                     // only processes INSIDE the .app bundle; the Docker VM (a system process) is never signalled directly -
                     // it must stop by itself when Docker quits normally
-                    if !force { for p in g.procs where !covered.contains(p.pid) && p.path.hasPrefix(app + "/") { kill(p.pid, SIGTERM) } }
+                    let helpers = g.procs.filter { !covered.contains($0.pid) && $0.path.hasPrefix(app + "/") }
+                    if force { killAll(helpers) } else { for p in helpers { kill(p.pid, SIGTERM) } }
                     continue
                 }
             }
+            if force { killAll(g.procs.filter { $0.name == "wineserver" }) }
             for p in g.procs { signal(p, force: force) }
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { self.refresh() }
+    }
+
+    /// SIGKILL a set of processes. Wine (CrossOver) ignores SIGTERM and keeps its clients alive through
+    /// `wineserver`, so the server goes first: once it is gone, every Windows process of the bottle exits with it.
+    private func killAll(_ procs: [ProcRow]) {
+        let ordered = procs.sorted { ($0.name == "wineserver" ? 0 : 1) < ($1.name == "wineserver" ? 0 : 1) }
+        for p in ordered {
+            kill(p.pid, SIGKILL)
+            if p.name == "wineserver" { AppLog.write("  wineserver pid \(p.pid): SIGKILL (Wine processes exit with it)") }
+        }
     }
 
     private func signal(_ p: ProcRow, force: Bool) {
