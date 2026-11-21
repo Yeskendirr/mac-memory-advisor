@@ -225,13 +225,13 @@ final class Monitor: ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { self.refresh() }
     }
 
-    /// SIGKILL a set of processes. Wine (CrossOver) ignores SIGTERM and keeps its clients alive through
-    /// `wineserver`, so the server goes first: once it is gone, every Windows process of the bottle exits with it.
+    /// SIGKILL a set of processes. Windows processes of CrossOver (Wine) ignore SIGTERM and can even outlive
+    /// `wineserver`, so every one of them is killed; the server goes first so it cannot start new ones meanwhile.
     private func killAll(_ procs: [ProcRow]) {
         let ordered = procs.sorted { ($0.name == "wineserver" ? 0 : 1) < ($1.name == "wineserver" ? 0 : 1) }
         for p in ordered {
             kill(p.pid, SIGKILL)
-            if p.name == "wineserver" { AppLog.write("  wineserver pid \(p.pid): SIGKILL (Wine processes exit with it)") }
+            if p.name == "wineserver" { AppLog.write("  wineserver pid \(p.pid): SIGKILL") }
         }
     }
 
