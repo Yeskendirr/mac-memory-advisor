@@ -176,3 +176,29 @@
 "By name" = "By name";
 "All" = "All";
 "Kills the selected processes immediately. Unsaved data will be lost" = "Kills the selected processes immediately. Unsaved data will be lost";
+
+/* Updates */
+"Check for Updates..." = "Check for Updates...";
+"Check for Updates Automatically" = "Check for Updates Automatically";
+"Checking for updates..." = "Checking for updates...";
+"Memory Advisor is up to date" = "Memory Advisor is up to date";
+"You have the latest version, %@." = "You have the latest version, %@.";
+"A new version of Memory Advisor is available" = "A new version of Memory Advisor is available";
+"Version %@ is out - you have %@." = "Version %@ is out - you have %@.";
+"Skip this version" = "Skip this version";
+"Later" = "Later";
+"Update now" = "Update now";
+"Downloading... %lld%%" = "Downloading... %lld%%";
+"Installing. The app will restart by itself." = "Installing. The app will restart by itself.";
+"This copy of the app cannot replace itself (it is not in a folder you can write to, e.g. it was started from Downloads or from the DMG). The new version's DMG has been opened: drag Memory Advisor to Applications and replace the old one." = "This copy of the app cannot replace itself (it is not in a folder you can write to, e.g. it was started from Downloads or from the DMG). The new version's DMG has been opened: drag Memory Advisor to Applications and replace the old one.";
+"Update failed" = "Update failed";
+"Open the releases page" = "Open the releases page";
+"GitHub did not answer (HTTP %lld)." = "GitHub did not answer (HTTP %lld).";
+"The latest release has no DMG to download." = "The latest release has no DMG to download.";
+"Download failed (HTTP %lld)." = "Download failed (HTTP %lld).";
+"The downloaded file is damaged (checksum mismatch). Try again later." = "The downloaded file is damaged (checksum mismatch). Try again later.";
+"Could not open the downloaded DMG." = "Could not open the downloaded DMG.";
+"The DMG does not contain the app." = "The DMG does not contain the app.";
+"Could not copy the new version." = "Could not copy the new version.";
+"The downloaded app is not the expected version of Memory Advisor." = "The downloaded app is not the expected version of Memory Advisor.";
+"The new version's code signature is invalid." = "The new version's code signature is invalid.";

@@ -167,3 +167,29 @@
 "By name" = "По имени";
 "All" = "Все";
 "Kills the selected processes immediately. Unsaved data will be lost" = "Сразу убивает выбранные процессы. Несохранённые данные будут потеряны";
+
+/* Updates */
+"Check for Updates..." = "Проверить обновления…";
+"Check for Updates Automatically" = "Проверять обновления автоматически";
+"Checking for updates..." = "Проверяю обновления…";
+"Memory Advisor is up to date" = "Установлена последняя версия Memory Advisor";
+"You have the latest version, %@." = "У вас последняя версия — %@.";
+"A new version of Memory Advisor is available" = "Доступна новая версия Memory Advisor";
+"Version %@ is out - you have %@." = "Вышла версия %@ — у вас %@.";
+"Skip this version" = "Пропустить эту версию";
+"Later" = "Позже";
+"Update now" = "Обновить";
+"Downloading... %lld%%" = "Загрузка… %lld%%";
+"Installing. The app will restart by itself." = "Устанавливаю. Программа перезапустится сама.";
+"This copy of the app cannot replace itself (it is not in a folder you can write to, e.g. it was started from Downloads or from the DMG). The new version's DMG has been opened: drag Memory Advisor to Applications and replace the old one." = "Эта копия программы не может обновить сама себя (она лежит в папке без прав на запись — например, запущена из «Загрузок» или прямо из DMG). DMG новой версии открыт: перетащите Memory Advisor в «Программы» с заменой старой.";
+"Update failed" = "Не удалось обновиться";
+"Open the releases page" = "Открыть страницу релизов";
+"GitHub did not answer (HTTP %lld)." = "GitHub не ответил (HTTP %lld).";
+"The latest release has no DMG to download." = "В последнем релизе нет DMG для загрузки.";
+"Download failed (HTTP %lld)." = "Загрузка не удалась (HTTP %lld).";
+"The downloaded file is damaged (checksum mismatch). Try again later." = "Скачанный файл повреждён (не совпала контрольная сумма). Попробуйте позже.";
+"Could not open the downloaded DMG." = "Не удалось открыть скачанный DMG.";
+"The DMG does not contain the app." = "В DMG нет приложения.";
+"Could not copy the new version." = "Не удалось скопировать новую версию.";
+"The downloaded app is not the expected version of Memory Advisor." = "Скачанное приложение — не та версия Memory Advisor, которую ожидали.";
+"The new version's code signature is invalid." = "Подпись новой версии недействительна.";
