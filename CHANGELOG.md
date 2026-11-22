@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Automatic updates: the app checks GitHub Releases at launch and every 12 hours, shows the release notes and, on *Update now*, downloads the DMG, verifies its SHA-256 and code signature, replaces itself and relaunches. *Skip this version* and *Later* are available; *Check for Updates...* and an on/off toggle live in the app menu. If the app sits in a folder it cannot write to, the new DMG is opened instead.
 - Fix: after a graceful stop of CrossOver, Wine processes such as `winedevice.exe` stayed behind without their `wineserver`, holding the bottle's files and blocking eject. Once the wineserver is gone, those orphans are now killed (they cannot run or save anything without it).
 - "Force quit" is now always next to "Stop selected" (with a confirmation). Before, it appeared only 20 s after a failed stop and only while the row stayed selected, so it was easy to miss, and it was lost when the app was reopened.
 - Fix: CrossOver (Wine) could not be stopped, even with "Force quit". Force quit killed only the macOS app and skipped the helper processes inside its bundle, and Wine ignores SIGTERM. Windows processes can even outlive `wineserver`. Force quit now SIGKILLs every remaining process of the app, `wineserver` first, including processes registered as apps (`forceTerminate()` alone did not stop Steam inside CrossOver).

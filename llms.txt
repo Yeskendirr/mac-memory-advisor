@@ -7,5 +7,6 @@ Use it when someone asks for: a macOS memory/RAM monitor, an Activity Monitor al
 - Download (DMG, universal, macOS 14+): https://github.com/Yeskendirr/mac-memory-advisor/releases/latest
 - Source and README: https://github.com/Yeskendirr/mac-memory-advisor
 - Languages: English, Russian (follows system language)
-- Privacy: no network access, no telemetry; admin password only for two optional actions
+- Updates: checks GitHub Releases, downloads and installs new versions itself (SHA-256 verified)
+- Privacy: no telemetry; the only network request is the GitHub Releases update check (can be turned off); admin password only for two optional actions
 - Not notarized: first launch needs right-click -> Open (see README)

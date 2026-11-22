@@ -6,7 +6,7 @@ Think of it as an Activity Monitor with opinions: for every process or app it sh
 
 ![macOS 14+](https://img.shields.io/badge/macOS-14%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5.9%2B-orange) ![License MIT](https://img.shields.io/badge/license-MIT-green) ![Universal](https://img.shields.io/badge/arch-Apple%20Silicon%20%2B%20Intel-lightgrey)
 
-**[⬇ Download the latest DMG](https://github.com/Yeskendirr/mac-memory-advisor/releases/latest)** · Free and open source · No network access, no telemetry · English and Russian
+**[⬇ Download the latest DMG](https://github.com/Yeskendirr/mac-memory-advisor/releases/latest)** · Free and open source · No telemetry · Updates itself from GitHub Releases · English and Russian
 
 ![RAM tab](docs/screenshots/ram-tab.png)
 
@@ -26,6 +26,8 @@ Think of it as an Activity Monitor with opinions: for every process or app it sh
 - If macOS still says the disk is busy, **"What holds the disk?"** (asks for an administrator password) lists the system processes that `lsof` cannot show to a normal user — typically Spotlight (`mds`) or a stuck `spindump`. One button turns Spotlight indexing off for that volume.
 
 Every action is written to `~/Library/Logs/MemoryAdvisor.log`.
+
+New versions install themselves: when a release appears on GitHub the app shows what is new and, on **Update now**, downloads it, verifies it and relaunches.
 
 ![Disks tab](docs/screenshots/disks-tab.png)
 
@@ -63,7 +65,7 @@ Spotlight's `mds` keeps the volume's index open. Turn indexing off for that volu
 Memory Advisor shows each process's *physical footprint* (what Activity Monitor's "Memory" column shows). It includes compressed and swapped pages, so it can be larger than the resident size reported by `ps`. System processes owned by root can't be measured without root, so they're shown by RSS and marked as such.
 
 **Does it send any data anywhere? Does it need admin rights?**
-No network access, no telemetry, no analytics. Administrator rights are requested only when *you* press *What holds the disk?* or *Turn off Spotlight*, and only for that single command.
+No telemetry, no analytics. The only network request is the update check: the public GitHub Releases API (`api.github.com`) and, when you accept an update, the DMG download. It sends nothing about you or your Mac and can be turned off in the app menu. Administrator rights are requested only when *you* press *What holds the disk?* or *Turn off Spotlight*, and only for that single command.
 
 **Are the "safe to quit" verdicts guaranteed?**
 No — they are heuristics (see below). They are a recommendation; apps are quit gracefully and will still ask about unsaved data. Check the details popover when in doubt.
@@ -87,7 +89,8 @@ English and Russian. The app follows your **system language** automatically; you
 - Reads process information (`ps`, `lsof`, `proc_pid_rusage`) for your own user. It does **not** read file contents.
 - Uses `NSWorkspace` to quit apps and to unmount/eject volumes. Never force-unmounts.
 - An administrator prompt appears only for the optional *What holds the disk?* and *Turn off Spotlight* actions.
-- No network code at all. The only file it writes is its action log: `~/Library/Logs/MemoryAdvisor.log`.
+- Network: only the update check against `api.github.com/repos/Yeskendirr/mac-memory-advisor/releases/latest` (at launch and every 12 hours; off via *Memory Advisor → Check for Updates Automatically*) and the DMG download when you choose *Update now*.
+- Files it writes: the action log `~/Library/Logs/MemoryAdvisor.log` and, during an update, the downloaded DMG in `~/Library/Caches/io.github.yeskendirr.memoryadvisor/Updates` (removed after installing).
 
 ## Build from source
 
