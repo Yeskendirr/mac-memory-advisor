@@ -8,6 +8,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 @main
 struct DiskMonitorApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    @AppStorage("autoCheckUpdates") private var autoCheckUpdates = true
 
     var body: some Scene {
         WindowGroup("Memory Advisor") {
@@ -16,6 +17,10 @@ struct DiskMonitorApp: App {
         .windowResizability(.contentMinSize)
         .defaultSize(width: 980, height: 640)
         .commands {
+            CommandGroup(after: .appInfo) {
+                Button("Check for Updates...") { Updater.shared.check(manual: true) }
+                Toggle("Check for Updates Automatically", isOn: $autoCheckUpdates)
+            }
             CommandMenu("Language") {
                 ForEach(AppLanguage.allCases) { lang in
                     Button {
@@ -86,6 +91,7 @@ func appIcon(_ path: String) -> NSImage {
 
 struct ContentView: View {
     @StateObject var m = Monitor()
+    @ObservedObject private var updater = Updater.shared
     @State private var confirmStop = false
     @State private var confirmForce = false
     private let timer = Timer.publish(every: 3, on: .main, in: .common).autoconnect()
@@ -114,6 +120,7 @@ struct ContentView: View {
         }
         .frame(minWidth: 900, minHeight: 540)
         .onAppear {
+            updater.start()
             m.refresh()
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { m.refresh() }   // second sample - needed for CPU %
         }
@@ -141,6 +148,7 @@ struct ContentView: View {
         }
         .sheet(item: $m.ejectFailure) { f in ejectFailureSheet(f) }
         .sheet(item: $m.holdersReport) { r in holdersSheet(r) }
+        .sheet(isPresented: $updater.showSheet) { UpdateSheet(u: updater) }
     }
 
     // MARK: Disks
